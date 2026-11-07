@@ -73,6 +73,18 @@ com.gls.reportagls/
 - **APK generado:** `app/build/outputs/apk/debug/app-debug.apk` (~11.7 MB).
 - **Entorno:** Android Studio + JDK incluido, SDK de compilación 37, `minSdk` 24.
 
+### Evidencia visual (capturas de la app)
+
+Adjuntar capturas tomadas del emulador o dispositivo físico:
+
+- [ ] Inicio de sesión como ciudadano.
+- [ ] Pantalla de inicio en modo **Lista** con filtros por categoría y radio.
+- [ ] Pantalla de inicio en modo **Mapa** con los marcadores.
+- [ ] Formulario de **nuevo reporte** (foto, categoría, fecha/hora y ubicación).
+- [ ] **Detalle** del reporte con la línea de tiempo de estatus.
+- [ ] **Mis reportes** filtrado por estatus.
+- [ ] Panel **Admin** cambiando el estatus de un reporte.
+
 ### Guion de demostración (para la sesión)
 
 1. Abrir la app e iniciar sesión como **ciudadano / 1234**.
@@ -86,37 +98,27 @@ com.gls.reportagls/
 6. Cerrar sesión, entrar como **admin / admin123**, abrir **Admin** y cambiar el
    estatus de un reporte; volver a **Mis reportes** (como ciudadano) para verlo.
 
-> En la máquina de desarrollo no había un AVD creado al momento de generar este
-> reporte; la APK compila correctamente y el guion anterior está listo para
-> ejecutarse en el emulador o dispositivo físico durante la sesión.
+> La APK compila correctamente y el guion anterior está listo para ejecutarse en
+> el emulador o dispositivo físico. Para la evidencia visual se deben capturar
+> las pantallas de la lista anterior.
 
 ---
 
 ## 3. Estado del repositorio
 
-- Proyecto en Android Studio: `C:\Users\valde\AndroidStudioProjects\ReportaGLS`.
-- Repositorio remoto documentado (Actividad 2.3):
-  <https://github.com/valdezvaldez9098-star/reportagls>.
-- **Pendiente operativo:** la carpeta local aún no está inicializada como
-  repositorio Git ni vinculada al remoto. Antes de la entrega se deben crear los
-  commits del avance:
+- **Raíz del repositorio:** `C:\Users\valde\AndroidStudioProjects\ReportaGLS`.
+- **Repositorio en GitHub:** <https://github.com/valdezvaldez9098-star/reportagls>.
+- **Rama `main` sincronizada con `origin/main`.**
+- La documentación del proyecto quedó versionada en la carpeta `documentacion/`.
 
-```bash
-cd C:\Users\valde\AndroidStudioProjects\ReportaGLS
-git init
-git remote add origin https://github.com/valdezvaldez9098-star/reportagls.git
-git add .
-git commit -m "Avance 1: MVP funcional de ReportaGLS (auth, reportes, mapa/lista, admin)"
-git branch -M main
-git push -u origin main
-```
+Commits que componen el avance:
 
-Commits sugeridos para reflejar el avance por etapas:
-
-1. `Configuración del proyecto y estructura por capas`.
-2. `Capa de dominio, persistencia local y autenticación`.
-3. `Pantallas de inicio, creación y detalle de reportes`.
-4. `Mis reportes, panel de administración y estilos Material 3`.
+| Commit | Descripción |
+| --- | --- |
+| `af63fe2` | Configuración inicial de la estructura del proyecto. |
+| `ddb5c57` | Avance 1: MVP funcional (auth, reportes, mapa/lista, admin). |
+| `980812b` | Documentación del proyecto (actividades 1.3, 2.3, 6.1 y 11.1). |
+| `e320a09` | Boceto inicial referenciado en la Actividad 1.3. |
 
 ---
 
