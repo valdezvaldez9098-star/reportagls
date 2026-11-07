@@ -12,41 +12,50 @@ Autor: José Aldair García Valdez.
 |Elemento|Detalle|
 |-|-|
 |IDE|Android Studio Quail 3 \| 2026.1.3|
-|Lenguaje|Kotlin 2.3|
+|Lenguaje|Kotlin 2.2.10|
+|Paquete|`com.gls.reportagls`|
 |SDK mínimo (minSdk)|24 (Android 7.0)|
-|SDK objetivo (targetSdk)|34 (Android 14)|
-|SDK compilación (compileSdk)|34|
-|Gestor de dependencias|Gradle (Kotlin DSL) 9.5.0|
-|Sistema de UI|Jetpack Compose|
-|Arquitectura|MVVM con separación por capas (ui / domain / data)|
+|SDK objetivo (targetSdk)|37|
+|SDK compilación (compileSdk)|37|
+|Gestor de dependencias|Gradle (Kotlin DSL) 9.6.0|
+|Sistema de UI|Jetpack Compose + Material 3|
+|Arquitectura|MVVM con separación por capas (ui / domain / data / di)|
 |Control de versiones|Git + GitHub|
-
-## 
 
 ## Dependencias principales
 
-* AndroidX Core KTX, Lifecycle, Activity Compose
+* AndroidX Core KTX, Lifecycle y Activity Compose
 * Jetpack Compose (BOM) + Material 3
-* Navigation Compose
-* CameraX (captura de fotografía del reporte)
-* Google Play Services Location (GPS del reporte)
-* Retrofit + OkHttp (comunicación con backend/Firebase, si aplica)
-* Room (caché local de reportes para uso sin conexión)
-* Coroutines (operaciones asíncronas)
+* Lifecycle ViewModel Compose (`StateFlow`)
+* Cámara por intent del sistema (`TakePicturePreview`)
+* Ubicación del sistema (`LocationManager`)
+* Persistencia local en JSON + almacenamiento interno de fotografías
+* Coroutines / Flow (estado reactivo)
+
+> Planeadas para la entrega final: Firebase (Auth, Firestore, Storage, FCM),
+> Google Maps Compose, CameraX y Room + WorkManager para sincronización offline.
 
 ## Estructura del proyecto
 
 ```
 app/src/main/java/com/gls/reportagls/
-├── ui/            # Pantallas y ViewModels (Compose), organizadas por feature
-│   ├── home/      # Pantalla principal: mapa + lista de reportes cercanos
-│   ├── report/    # Formulario para crear un nuevo reporte
-│   └── detail/    # Pantalla de detalle y estatus de un reporte
-├── domain/        # Modelos de dominio y casos de uso (lógica de negocio pura)
-├── data/          # Acceso a datos
-│   ├── local/     # Room (persistencia local / modo sin conexión)
-│   └── remote/    # Firebase / API REST (Retrofit)
-└── di/            # Módulos de inyección de dependencias
+├── MainActivity.kt
+├── ReportaGlsApplication.kt   # Application + contenedor de dependencias
+├── ui/                        # Pantallas Compose, organizadas por feature
+│   ├── login/                 # Registro e inicio de sesión
+│   ├── home/                  # Mapa esquemático + lista de reportes cercanos
+│   ├── report/                # Formulario para crear un nuevo reporte
+│   ├── detail/                # Detalle y estatus de un reporte
+│   ├── myreports/             # Historial personal filtrable por estatus
+│   ├── admin/                 # Cambio de estatus (rol administrador)
+│   ├── common/ theme/         # Componentes reutilizables y tema Material 3
+│   └── ReportaGlsApp.kt       # Navegación y Scaffold principal
+├── domain/                    # Modelos de dominio (Report, User, LatLng)
+├── data/                      # Repositorios y acceso a datos
+│   └── local/                 # Persistencia local (JSON / SharedPreferences)
+├── viewmodel/                 # Estado único de la app (StateFlow)
+├── util/                      # Geo, fotos y ubicación
+└── di/                        # Contenedor de dependencias
 ```
 
 Esta separación mantiene la UI, la lógica de negocio y el acceso a datos independientes
@@ -59,8 +68,18 @@ entre sí, siguiendo el criterio de separación de responsabilidades visto en cl
 3. Dejar que Gradle sincronice las dependencias.
 4. Ejecutar en un emulador o dispositivo con Android 7.0 o superior.
 
+Cuentas de demostración:
+
+* Ciudadano: `ciudadano` / `1234`
+* Administrador: `admin` / `admin123`
+
 ## Estado del proyecto
 
-Fase actual: configuración de la estructura base del proyecto e inicialización del
-repositorio (Actividad 2.3). Aún no se ha implementado funcionalidad.
+Primer avance (MVP funcional, Actividad 11.1): autenticación local con roles,
+creación y consulta de reportes, mapa esquemático y lista con filtros por
+categoría y radio, detalle con estatus, historial "Mis reportes" y panel de
+administración. La persistencia es local y funciona sin conexión.
+
+Pendiente para la entrega final: backend Firebase (Auth, Firestore, Storage),
+Google Maps Compose, notificaciones push, CameraX, Room + WorkManager y pruebas.
 
