@@ -52,7 +52,8 @@ class ReportLocalDataSource(context: Context) {
         createdAt = getLong("createdAt"),
         detectedAt = getLong("detectedAt"),
         authorId = getString("authorId"),
-        authorName = getString("authorName")
+        authorName = getString("authorName"),
+        synced = optBoolean("synced", true)
     )
 
     private fun Report.toJson(): JSONObject = JSONObject().apply {
@@ -68,6 +69,7 @@ class ReportLocalDataSource(context: Context) {
         put("detectedAt", detectedAt)
         put("authorId", authorId)
         put("authorName", authorName)
+        put("synced", synced)
     }
 
     /**

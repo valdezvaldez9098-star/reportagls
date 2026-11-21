@@ -31,9 +31,10 @@ Autor: José Aldair García Valdez.
 * Ubicación del sistema (`LocationManager`)
 * Persistencia local en JSON + almacenamiento interno de fotografías
 * Coroutines / Flow (estado reactivo)
+* Retrofit 2 + OkHttp 4 + Gson (capa de conectividad REST, con backend simulado)
 
 > Planeadas para la entrega final: Firebase (Auth, Firestore, Storage, FCM),
-> Google Maps Compose, CameraX y Room + WorkManager para sincronización offline.
+> Google Maps Compose, CameraX y Room + WorkManager para sincronización automática.
 
 ## Estructura del proyecto
 
@@ -52,9 +53,11 @@ app/src/main/java/com/gls/reportagls/
 │   └── ReportaGlsApp.kt       # Navegación y Scaffold principal
 ├── domain/                    # Modelos de dominio (Report, User, LatLng)
 ├── data/                      # Repositorios y acceso a datos
-│   └── local/                 # Persistencia local (JSON / SharedPreferences)
+│   ├── local/                 # Persistencia local (JSON / SharedPreferences)
+│   ├── remote/                # DTO, contrato Retrofit, backend simulado e interceptor
+│   └── SyncManager.kt         # Sincronización local ↔ API REST
 ├── viewmodel/                 # Estado único de la app (StateFlow)
-├── util/                      # Geo, fotos y ubicación
+├── util/                      # Geo, fotos, ubicación y estado de red
 └── di/                        # Contenedor de dependencias
 ```
 
@@ -80,6 +83,13 @@ creación y consulta de reportes, mapa esquemático y lista con filtros por
 categoría y radio, detalle con estatus, historial "Mis reportes" y panel de
 administración. La persistencia es local y funciona sin conexión.
 
-Pendiente para la entrega final: backend Firebase (Auth, Firestore, Storage),
-Google Maps Compose, notificaciones push, CameraX, Room + WorkManager y pruebas.
+Segundo avance (Actividad 13.1, dos semanas posteriores): se añadió la capa de
+**conectividad** con Retrofit + OkHttp + Gson y un backend simulado mediante un
+interceptor; `SyncManager` sincroniza la persistencia local con la API, mantiene
+una cola de reportes pendientes y permite probar el modo sin conexión desde la
+pantalla de inicio. El detalle muestra el estado de sincronización de cada reporte.
+
+Pendiente para la entrega final: backend remoto real (Firebase Auth/Firestore/
+Storage), sincronización automática con Room + WorkManager, Google Maps Compose,
+notificaciones push (FCM), CameraX y pruebas de UI.
 

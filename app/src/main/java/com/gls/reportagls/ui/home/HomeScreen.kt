@@ -23,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -58,6 +59,7 @@ import com.gls.reportagls.util.LocationHelper
 import com.gls.reportagls.util.distanceLabel
 import com.gls.reportagls.util.distanceMeters
 import com.gls.reportagls.viewmodel.ReportaGlsViewModel
+import com.gls.reportagls.viewmodel.UiState
 import kotlin.math.cos
 
 @Composable
@@ -127,6 +129,8 @@ fun HomeScreen(
             }
             TextButton(onClick = vm::logout) { Text("Salir") }
         }
+
+        SyncStatusCard(state = state, viewModel = vm)
 
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
@@ -322,5 +326,67 @@ private fun SchematicMap(
 
         drawCircle(color = primary, radius = 12f, center = centerOffset)
         drawCircle(color = Color.White, radius = 5f, center = centerOffset)
+    }
+}
+
+/** Tarjeta que hace visible el estado de conectividad y de sincronización. */
+@Composable
+private fun SyncStatusCard(state: UiState, viewModel: ReportaGlsViewModel) {
+    val pending = state.reports.count { !it.synced }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Filled.Refresh,
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = when {
+                            state.isSyncing -> "Sincronizando..."
+                            !state.isOnline -> "Sin conexión"
+                            else -> "Conectado a la API"
+                        },
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = state.syncMessage
+                            ?: "Persistencia local + sincronización con Retrofit/OkHttp.",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                TextButton(
+                    onClick = { viewModel.synchronize() },
+                    enabled = !state.isSyncing
+                ) {
+                    Text(if (state.isSyncing) "Espere" else "Sincronizar")
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Pendientes de enviar: $pending",
+                    style = MaterialTheme.typography.labelSmall
+                )
+                TextButton(onClick = { viewModel.setSimulateOffline(!state.simulateOffline) }) {
+                    Text(if (state.simulateOffline) "Simular en línea" else "Simular sin conexión")
+                }
+            }
+        }
     }
 }

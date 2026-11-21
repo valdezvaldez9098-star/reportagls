@@ -139,6 +139,10 @@ fun ReportDetailScreen(
                     InfoRow("Detectado", formatDateTime(report.detectedAt))
                     InfoRow("Registrado", formatDateTime(report.createdAt))
                     InfoRow("Reportado por", report.authorName)
+                    InfoRow(
+                        "Sincronización",
+                        if (report.synced) "Sincronizado con la API" else "Pendiente de enviar"
+                    )
                 }
             }
 

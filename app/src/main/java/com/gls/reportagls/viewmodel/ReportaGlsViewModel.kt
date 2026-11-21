@@ -2,15 +2,18 @@ package com.gls.reportagls.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.gls.reportagls.ReportaGlsApplication
 import com.gls.reportagls.domain.LatLng
 import com.gls.reportagls.domain.Report
 import com.gls.reportagls.domain.ReportCategory
 import com.gls.reportagls.domain.ReportStatus
 import com.gls.reportagls.domain.User
+import com.gls.reportagls.util.isOnline
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 /** Estado único que consume toda la UI de ReportaGLS. */
@@ -21,14 +24,19 @@ data class UiState(
     val radiusMeters: Int = 2000,
     val myReportsStatus: ReportStatus? = null,
     val userLocation: LatLng = LatLng.GABRIEL_LEYVA_SOLANO,
-    val loginError: String? = null
+    val loginError: String? = null,
+    val isOnline: Boolean = true,
+    val isSyncing: Boolean = false,
+    val syncMessage: String? = null,
+    val lastSyncAt: Long? = null,
+    val simulateOffline: Boolean = false
 )
 
 /**
  * ViewModel principal (patrón MVVM).
  *
- * Mantiene el estado de la sesión, los reportes, los filtros del mapa/lista y la
- * ubicación del usuario. Toda la UI observa [uiState].
+ * Mantiene sesión, reportes, filtros, ubicación y estado de conectividad.
+ * Toda la UI observa [uiState].
  */
 class ReportaGlsViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -42,7 +50,8 @@ class ReportaGlsViewModel(application: Application) : AndroidViewModel(applicati
     init {
         _uiState.value = _uiState.value.copy(
             currentUser = userRepository.currentUser(),
-            reports = reportRepository.getReports()
+            reports = reportRepository.getReports(),
+            isOnline = getApplication<Application>().isOnline()
         )
     }
 
@@ -112,15 +121,61 @@ class ReportaGlsViewModel(application: Application) : AndroidViewModel(applicati
             createdAt = System.currentTimeMillis(),
             detectedAt = detectedAt,
             authorId = user.id,
-            authorName = user.displayName
+            authorName = user.displayName,
+            synced = false
         )
         val updated = reportRepository.add(report)
-        _uiState.value = _uiState.value.copy(reports = updated)
+        _uiState.value = _uiState.value.copy(
+            reports = updated,
+            syncMessage = "Reporte guardado en el dispositivo; pendiente de sincronizar."
+        )
     }
 
     fun updateStatus(reportId: String, status: ReportStatus) {
         val updated = reportRepository.updateStatus(reportId, status)
-        _uiState.value = _uiState.value.copy(reports = updated)
+        _uiState.value = _uiState.value.copy(
+            reports = updated,
+            syncMessage = "Estatus actualizado; pendiente de sincronizar."
+        )
+    }
+
+    // ---------------------------------------------------------------------
+    // Conectividad y sincronización
+    // ---------------------------------------------------------------------
+
+    fun synchronize() {
+        if (_uiState.value.isSyncing) return
+        _uiState.value = _uiState.value.copy(isSyncing = true, syncMessage = null)
+
+        viewModelScope.launch {
+            val result = appModule.syncManager.synchronize()
+            _uiState.value = _uiState.value.copy(
+                isSyncing = false,
+                isOnline = getApplication<Application>().isOnline() && !_uiState.value.simulateOffline,
+                syncMessage = result.message,
+                lastSyncAt = if (result.success) System.currentTimeMillis() else _uiState.value.lastSyncAt,
+                reports = reportRepository.getReports()
+            )
+        }
+    }
+
+    fun setSimulateOffline(enabled: Boolean) {
+        appModule.mockBackend.forceOffline = enabled
+        _uiState.value = _uiState.value.copy(
+            simulateOffline = enabled,
+            isOnline = if (enabled) false else getApplication<Application>().isOnline(),
+            syncMessage = if (enabled) {
+                "Modo sin conexión activado (prueba de resiliencia)."
+            } else {
+                "Modo en línea restablecido."
+            }
+        )
+    }
+
+    fun refreshConnectivity() {
+        _uiState.value = _uiState.value.copy(
+            isOnline = getApplication<Application>().isOnline() && !_uiState.value.simulateOffline
+        )
     }
 
     // ---------------------------------------------------------------------

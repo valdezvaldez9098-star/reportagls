@@ -18,7 +18,8 @@ data class Report(
     val createdAt: Long,
     val detectedAt: Long,
     val authorId: String,
-    val authorName: String
+    val authorName: String,
+    val synced: Boolean = true
 )
 
 enum class ReportCategory(val label: String, val emoji: String) {
